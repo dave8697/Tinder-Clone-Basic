@@ -1,34 +1,35 @@
 import mysql.connector
+
+
 class Tinder:
     def __init__(self):
-        self.conn=mysql.connector.connect(user="root",password="",host="localhost",database="tinderclone")
-        self.mycursor=self.conn.cursor()
-        self.currentUserId=0
+        self.conn = mysql.connector.connect(
+            user="root", password="", host="localhost", database="tinderclone")
+        self.mycursor = self.conn.cursor()
+        self.currentUserId = 0
 
-
-    def userLogin(self,email,password):
+    def userLogin(self, email, password):
         self.mycursor.execute("""select * from `users` where `email` like '%s' and `password` like '%s'
-        """%(email,password))
-        userList=self.mycursor.fetchall()
-        i=0
+        """ % (email, password))
+        userList = self.mycursor.fetchall()
+        i = 0
         for k in userList:
-            i=i+1
-        if i==1:
-            self.currentUserId=userList[0][0]
+            i = i+1
+        if i == 1:
+            self.currentUserId = userList[0][0]
             return True
         else:
             return False
 
-
-    def userRegister(self,name,gender,city,email,password):
+    def userRegister(self, name, gender, city, email, password):
         self.mycursor.execute("""
         select * from `users` where `email` like '%s'
-        """%(email))
-        userList=self.mycursor.fetchall()
-        i=0
+        """ % (email))
+        userList = self.mycursor.fetchall()
+        i = 0
         for k in userList:
-            i=i+1
-        if i>0:
+            i = i+1
+        if i > 0:
             return False
         else:
             self.mycursor.execute("""insert into `users` (`name`, `gender`, `city`, `email`, `password`)
@@ -36,7 +37,6 @@ class Tinder:
                                     """ % (name, gender, city, email, password))
             self.conn.commit()
             return True
-
 
     def fetchUserName(self):
         self.mycursor.execute("""
@@ -50,30 +50,30 @@ class Tinder:
         self.mycursor.execute("""
         select * from `users`
         """)
-        userList=self.mycursor.fetchall()
+        userList = self.mycursor.fetchall()
         return userList
 
-    def propose(self,julietid):
+    def propose(self, julietid):
 
         self.mycursor.execute("""
         select * from `proposals` where `julietid` like '%s' and `romeoid` like '%s'
-        """%(julietid,self.currentUserId))
-        row=self.mycursor.fetchall()
-        i=0
+        """ % (julietid, self.currentUserId))
+        row = self.mycursor.fetchall()
+        i = 0
         for k in row:
-            i=i+1
-        if i>0:
+            i = i+1
+        if i > 0:
             return False
         else:
             self.mycursor.execute("""
             insert into `proposals`(`romeoid`,`julietid`)
             values('%s', '%s')
-            """%(self.currentUserId,julietid))
+            """ % (self.currentUserId, julietid))
 
             self.conn.commit()
             return True
 
-    def check(self,julietid):
+    def check(self, julietid):
         self.mycursor.execute("""
                 select * from `proposals` where `julietid` like '%s' and `romeoid` like '%s'
                 """ % (julietid, self.currentUserId))
@@ -87,22 +87,22 @@ class Tinder:
             return True
 
     def viewSentProposals(self):
-        self.mycursor.execute ("""
+        self.mycursor.execute("""
         select * from `proposals` p join `users` u 
         on p.`julietid` = u.`userid` where 
         `romeoid` like '%s'
-        """%(self.currentUserId))
+        """ % (self.currentUserId))
 
-        rows=self.mycursor.fetchall()
+        rows = self.mycursor.fetchall()
         return rows
 
     def viewReceivedProposals(self):
         self.mycursor.execute("""
         select * from `proposals` p join `users` u 
         on p.`romeoid`= u.`userid` where `julietid` like '%s'
-        """%(self.currentUserId))
+        """ % (self.currentUserId))
 
-        rows=self.mycursor.fetchall()
+        rows = self.mycursor.fetchall()
         return rows
 
     def viewMatches(self):
@@ -117,4 +117,4 @@ class Tinder:
         return rows
 
     def logout(self):
-        self.currentUserId=0
+        self.currentUserId = 0
